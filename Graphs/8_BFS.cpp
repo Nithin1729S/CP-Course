@@ -19,47 +19,52 @@ using namespace std;
 #define take(a,n) vi a(n); for(int i=0;i<n;i++) std::cin >> a[i];
 #define give(a,n) for(int i=0;i<n;i++) {std::cout << a[i] << ' ';}std::cout << endl;
 
-const int N=2e5+10;
-int wt[108],val[108];
-ll dp[105][100005];
+const int N=1e5+10;
+vector<int>g[N];
+int vis[N];
+int lvl[N];
 
-ll func(int idx,int val_left)
+void bfs(int src)
 {
-    if(val_left==0) return 0;
-    if(idx<0) return 1e15;
-    if(dp[idx][val_left]!=-1) return dp[idx][val_left];
-
-    ll ans=func(idx-1,val_left);
-
-    if(val_left-val[idx]>=0)
+    queue<int>q;
+    q.push(src);
+    vis[src]=1;
+    while(!q.empty())
     {
-        ans=min(ans,func(idx-1,val_left-val[idx])+wt[idx]);
+        int curr_v=q.front();
+        q.pop();
+        cout<<curr_v<<" ";
+        for(int child:g[curr_v])
+        {
+            if(!vis[child])
+            {
+                q.push(child);
+                vis[child]=1;
+                lvl[child]=lvl[curr_v]+1;
+            }
+        }
+
     }
-    return dp[idx][val_left]=ans;
 }
-
-
 void solve()
 {
-    int n,w;
-    cin>>n>>w;
+    int n;
+    cin>>n;
     for(int i=0;i<n;i++)
     {
-        cin>>wt[i]>>val[i];
+        int a,b;
+        cin>>a>>b;
+        g[a].push_back(b);
+        g[b].push_back(a);
     }
-    memset(dp,-1,sizeof(dp));
-    int max_value=1e5;
-    for(int i=max_value;i>=0;i--)
+   
+    bfs(1);
+    cout<<endl;
+    for(int i=1;i<=n;i++)
     {
-        if(func(n-1,i)<=w)
-        {
-            cout<<i<<endl;
-            break;
-        }
+        cout<<i<<" : "<<lvl[i]<<endl;
     }
-
 }
-
 int32_t main()
 {
     #ifndef ONLINE_JUDGE
@@ -71,3 +76,4 @@ int32_t main()
         solve();
     return 0;
 }
+

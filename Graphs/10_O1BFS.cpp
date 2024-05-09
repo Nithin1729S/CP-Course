@@ -19,47 +19,59 @@ using namespace std;
 #define take(a,n) vi a(n); for(int i=0;i<n;i++) std::cin >> a[i];
 #define give(a,n) for(int i=0;i<n;i++) {std::cout << a[i] << ' ';}std::cout << endl;
 
-const int N=2e5+10;
-int wt[108],val[108];
-ll dp[105][100005];
+const int N=1e5+10;
+vector<pair<int,int>>g[N];
+vi lvl(N,INF);
+int n,m;
 
-ll func(int idx,int val_left)
+int bfs(int src)
 {
-    if(val_left==0) return 0;
-    if(idx<0) return 1e15;
-    if(dp[idx][val_left]!=-1) return dp[idx][val_left];
-
-    ll ans=func(idx-1,val_left);
-
-    if(val_left-val[idx]>=0)
+    deque<int>q;
+    q.push_back(src);
+    lvl[1]=0;
+    while(!q.empty())
     {
-        ans=min(ans,func(idx-1,val_left-val[idx])+wt[idx]);
-    }
-    return dp[idx][val_left]=ans;
-}
+        int curr_v=q.front();
+        q.pop_front();
 
+        for(auto &child:g[curr_v])
+        {
+            int child_v=child.fr;
+            int wt=child.sc;
+            if(lvl[curr_v]+wt<lvl[child_v])
+            {
+                lvl[child_v]=lvl[curr_v]+wt;
+                if(wt==1)
+                {
+                    q.push_back(child_v);
+                }
+                else
+                {
+                    q.push_front(child_v);
+                }
+            }
+        }
+        
+    }
+    return lvl[n]==INF ? -1:lvl[n];
+
+
+
+}
 
 void solve()
 {
-    int n,w;
-    cin>>n>>w;
-    for(int i=0;i<n;i++)
+    cin>>n>>m;
+    for(int i=0;i<m;i++)
     {
-        cin>>wt[i]>>val[i];
+        int x,y;
+        cin>>x>>y;
+        if(x==y) continue;
+        g[x].pb({y,0});
+        g[y].pb({x,1});
     }
-    memset(dp,-1,sizeof(dp));
-    int max_value=1e5;
-    for(int i=max_value;i>=0;i--)
-    {
-        if(func(n-1,i)<=w)
-        {
-            cout<<i<<endl;
-            break;
-        }
-    }
-
+    cout<<bfs(1)<<endl;
 }
-
 int32_t main()
 {
     #ifndef ONLINE_JUDGE
@@ -71,3 +83,4 @@ int32_t main()
         solve();
     return 0;
 }
+

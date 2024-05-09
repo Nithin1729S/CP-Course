@@ -19,47 +19,45 @@ using namespace std;
 #define take(a,n) vi a(n); for(int i=0;i<n;i++) std::cin >> a[i];
 #define give(a,n) for(int i=0;i<n;i++) {std::cout << a[i] << ' ';}std::cout << endl;
 
-const int N=2e5+10;
-int wt[108],val[108];
-ll dp[105][100005];
+const int N=1e5+10;
+vector<int>g[N];
+int subtree_sum[N];
+int val[N];
 
-ll func(int idx,int val_left)
+void dfs(int vertex,int parent=-1)
 {
-    if(val_left==0) return 0;
-    if(idx<0) return 1e15;
-    if(dp[idx][val_left]!=-1) return dp[idx][val_left];
-
-    ll ans=func(idx-1,val_left);
-
-    if(val_left-val[idx]>=0)
+    subtree_sum[vertex]+=val[vertex];
+    for(auto child:g[vertex])
     {
-        ans=min(ans,func(idx-1,val_left-val[idx])+wt[idx]);
+        if(child==parent) continue;
+        dfs(child,vertex);
+        subtree_sum[vertex]+=subtree_sum[child];
     }
-    return dp[idx][val_left]=ans;
 }
-
-
 void solve()
 {
-    int n,w;
-    cin>>n>>w;
+    int n;
+    cin>>n;
     for(int i=0;i<n;i++)
     {
-        cin>>wt[i]>>val[i];
+        int a,b;
+        cin>>a>>b;
+        g[a].pb(b);
+        g[b].pb(a);
     }
-    memset(dp,-1,sizeof(dp));
-    int max_value=1e5;
-    for(int i=max_value;i>=0;i--)
+    dfs(1,0);
+    ll ans=0;
+    //1 rooted tree
+    for(int i=2;i<=n;i++)
     {
-        if(func(n-1,i)<=w)
-        {
-            cout<<i<<endl;
-            break;
-        }
+        int part1=subtree_sum[i];
+        int part2=subtree_sum[1]-part1;
+        ans=max(ans,(part1*1ll*part2)%MOD);
     }
+    cout<<ans<<endl;
+
 
 }
-
 int32_t main()
 {
     #ifndef ONLINE_JUDGE
@@ -71,3 +69,4 @@ int32_t main()
         solve();
     return 0;
 }
+

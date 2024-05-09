@@ -19,47 +19,50 @@ using namespace std;
 #define take(a,n) vi a(n); for(int i=0;i<n;i++) std::cin >> a[i];
 #define give(a,n) for(int i=0;i<n;i++) {std::cout << a[i] << ' ';}std::cout << endl;
 
-const int N=2e5+10;
-int wt[108],val[108];
-ll dp[105][100005];
-
-ll func(int idx,int val_left)
+const int N=1e5+10;
+vector<int>g[N];
+int even_ct[N];
+int subtree_sum[N];
+void dfs(int vertex,int par=0)
 {
-    if(val_left==0) return 0;
-    if(idx<0) return 1e15;
-    if(dp[idx][val_left]!=-1) return dp[idx][val_left];
-
-    ll ans=func(idx-1,val_left);
-
-    if(val_left-val[idx]>=0)
+    if(vertex%2==0) even_ct[vertex]++;
+    subtree_sum[vertex]+=vertex;
+    for(auto child:g[vertex])
     {
-        ans=min(ans,func(idx-1,val_left-val[idx])+wt[idx]);
+        if(child==par) continue;
+        dfs(child,vertex);
+        even_ct[vertex]+=even_ct[child];
+        subtree_sum[vertex]+=subtree_sum[child];
     }
-    return dp[idx][val_left]=ans;
 }
-
-
 void solve()
 {
-    int n,w;
-    cin>>n>>w;
-    for(int i=0;i<n;i++)
+    int n;
+    cin>>n;
+    for(int i=0;i<n-1;i++)
     {
-        cin>>wt[i]>>val[i];
+        int a,b;
+        cin>>a>>b;
+        g[a].push_back(b);
+        g[b].push_back(a);
     }
-    memset(dp,-1,sizeof(dp));
-    int max_value=1e5;
-    for(int i=max_value;i>=0;i--)
-    {
-        if(func(n-1,i)<=w)
-        {
-            cout<<i<<endl;
-            break;
-        }
-    }
+    dfs(1);
+    cout<<"Subtree Sum"<<endl;  
+    for(int i=1;i<=n;i++) cout<<subtree_sum[i]<<" ";
+    cout<<endl;
+    cout<<"Even Count"<<endl;
+    for(int i=1;i<=n;i++) cout<<even_ct[i]<<" ";
+    // int q;
+    // cin>>q;
+    // while(q--)
+    // {
+    //     int v;
+    //     cin>>v;
+
+    // }
+
 
 }
-
 int32_t main()
 {
     #ifndef ONLINE_JUDGE
@@ -71,3 +74,4 @@ int32_t main()
         solve();
     return 0;
 }
+

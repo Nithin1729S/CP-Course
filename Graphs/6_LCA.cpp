@@ -19,47 +19,68 @@ using namespace std;
 #define take(a,n) vi a(n); for(int i=0;i<n;i++) std::cin >> a[i];
 #define give(a,n) for(int i=0;i<n;i++) {std::cout << a[i] << ' ';}std::cout << endl;
 
-const int N=2e5+10;
-int wt[108],val[108];
-ll dp[105][100005];
+const int N=1e5+10;
+vector<int>g[N];
 
-ll func(int idx,int val_left)
+int parent[N];
+
+void dfs(int v,int par=-1)
 {
-    if(val_left==0) return 0;
-    if(idx<0) return 1e15;
-    if(dp[idx][val_left]!=-1) return dp[idx][val_left];
-
-    ll ans=func(idx-1,val_left);
-
-    if(val_left-val[idx]>=0)
-    {
-        ans=min(ans,func(idx-1,val_left-val[idx])+wt[idx]);
+    parent[v]=par;
+    for(auto child:g[v])
+    { 
+        if(child==par) continue;
+        dfs(child,v);
     }
-    return dp[idx][val_left]=ans;
 }
 
-
+vector<int>path(int v)
+{
+    vector<int>ans;
+    while(v!=-1)
+    {
+        ans.pb(v);
+        v=parent[v];
+    }
+    reverse(ans.begin(),ans.end());
+    return ans;
+}
+ 
 void solve()
 {
-    int n,w;
-    cin>>n>>w;
-    for(int i=0;i<n;i++)
+    int n;
+    cin>>n;
+    for(int i=0;i<n-1;i++)
     {
-        cin>>wt[i]>>val[i];
+        int a,b;
+        cin>>a>>b;
+        g[a].push_back(b);
+        g[b].push_back(a);
     }
-    memset(dp,-1,sizeof(dp));
-    int max_value=1e5;
-    for(int i=max_value;i>=0;i--)
+    dfs(1);
+    int x=6;
+    int y=7;
+    vi path_x=path(x);
+    vi path_y=path(y);
+    int minLen=min(path_x.size(),path_y.size());
+
+    int lca=-1;
+    for(int i=0;i<minLen;i++)
     {
-        if(func(n-1,i)<=w)
+        if(path_x[i]==path_y[i])
         {
-            cout<<i<<endl;
+            lca=path_x[i];
+        }
+        else{
             break;
         }
     }
+    cout<<lca<<endl;
+
+
+
 
 }
-
 int32_t main()
 {
     #ifndef ONLINE_JUDGE
@@ -71,3 +92,4 @@ int32_t main()
         solve();
     return 0;
 }
+
